@@ -19,7 +19,7 @@ public class AuthFilter implements Filter {
         if (httpRequest.getRemoteUser() == null) {
             // Redirect to Azure AD login page
             String tenantId = "30bf9f37-d550-4878-9494-1041656caf27";  // Replace with your actual tenant ID
-            String clientId = "a6ff3a3d-9ea5-4db1-b311-cfbe409f88a5";  // Replace with your actual client ID
+            String clientId = "b0da856b-17ed-46b5-b2e4-73a7f46b72cb";  // Replace with your actual client ID
             String redirectUri = httpRequest.getRequestURL().toString();
             String scope = "openid profile email";  // Add the required scopes
             String loginUrl = "https://login.microsoftonline.com/" + tenantId + "/oauth2/v2.0/authorize" +
