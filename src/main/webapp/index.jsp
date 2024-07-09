@@ -107,13 +107,16 @@
 <div class="center-content">
     <h1>Welcome to Service Portal</h1>
     <%
-           
+           if (user != null) {
             out.println("<span>Welcome, " + user + "!</span><br><br>");
             out.println("<span class='welcome-text'>Welcome, " + user + "!</span><br><br>");
             out.println("<div class='button-container'>");
             out.println("<button class='btn' onclick=\"window.location.href='shiftHandoverForm.jsp'\">Shift Handover Form</button>");
             out.println("<button class='btn' onclick=\"window.location.href='searchDetailsForm.jsp'\">Search Details</button>");
             out.println("</div>");
+            } else {
+            out.println("<button class='btn' onclick=\"window.location.href='/.auth/login/aad'\">Sign In</button>");
+        }
         
     %>
 </div>
