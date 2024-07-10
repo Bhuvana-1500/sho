@@ -1,3 +1,13 @@
+import java.io.IOException;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 public class AuthFilter implements Filter {
     public void init(FilterConfig filterConfig) throws ServletException {}
 
@@ -10,12 +20,12 @@ public class AuthFilter implements Filter {
             // Redirect to Azure AD login page
             String tenantId = "30bf9f37-d550-4878-9494-1041656caf27";  // Replace with your actual tenant ID
             String clientId = "d3d001c4-4a33-49ae-9423-494e885c8797";  // Replace with your actual client ID
-            String redirectUri = "https://bhuvanasho.azurewebsites.net/demosho"; // Ensure this matches your redirect URI
+            String redirectUri = httpRequest.getRequestURL().toString();
             String scope = "openid profile email";  // Add the required scopes
             String loginUrl = "https://login.microsoftonline.com/" + tenantId + "/oauth2/v2.0/authorize" +
                               "?client_id=" + clientId +
                               "&response_type=id_token" +
-                              "&redirect_uri=" + java.net.URLEncoder.encode(redirectUri, "UTF-8") +
+                              "&redirect_uri=" + redirectUri +
                               "&scope=" + scope +
                               "&response_mode=fragment" +
                               "&nonce=" + java.util.UUID.randomUUID().toString();
