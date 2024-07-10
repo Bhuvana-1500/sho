@@ -5,7 +5,7 @@
 
     // Azure AD configuration
     String tenantId = "30bf9f37-d550-4878-9494-1041656caf27";  // Replace with your actual tenant ID
-    String clientId = "2f40180b-180e-4cd5-9680-ecc2f6b349e5";  // Replace with your actual client ID
+    String clientId = "d3d001c4-4a33-49ae-9423-494e885c8797";  // Replace with your actual client ID
     String redirectUri = "https://bhuvanasho.azurewebsites.net/demosho";  // Replace with your actual redirect URI
     String scope = "openid profile email";  // Add the required scopes
 
