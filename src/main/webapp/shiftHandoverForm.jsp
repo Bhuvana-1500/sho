@@ -129,7 +129,10 @@
             <td>
                 <select class="input-box" name="DepType">
                     <option value="">--Select--</option>
-                    <option value="Security">Cyber Security</option>
+                    <option value="Security">Security</option>
+                    <option value="Networking">Networking</option>
+                    <option value="CMS">CMS</option>
+                    <option value="Data">Data</option>
                 </select>
             </td>
         </tr>
@@ -166,7 +169,8 @@
     String com1 = request.getParameter("com");
     
     // Generate timestamp in Asia/Kolkata timezone
-    String time = Instant.now().atZone(ZoneId.of("Asia/Kolkata")).format(DateTimeFormatter.ofPattern("HH:mm:ss"));
+    LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Kolkata"));
+    String time = now.format(DateTimeFormatter.ofPattern("HH:mm:ss"));
 
     if (date1 != null && name1 != null && dep1 != null && shiftType != null && com1 != null && 
         !date1.isEmpty() && !name1.isEmpty() && !dep1.isEmpty() && !shiftType.isEmpty() && !com1.isEmpty()) { 
