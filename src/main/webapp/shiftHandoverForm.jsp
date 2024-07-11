@@ -38,7 +38,7 @@
         editorContent.value = quill.root.innerHTML;
 
         // Get client's current time
-        var clientTime = new Date().toISOString().split('T')[1].split('.')[0];
+        var clientTime = new Date().toLocaleTimeString('en-GB', { hour12: false });
         document.getElementById('clientTime').value = clientTime;
 
         document.querySelector('form').submit();
@@ -98,6 +98,7 @@
         <input type="submit" class="btn" value="Submit">
     </center>
 </form>
+
 <%
     String date1 = request.getParameter("date");
     String name1 = request.getParameter("name");
