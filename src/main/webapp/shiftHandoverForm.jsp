@@ -106,7 +106,19 @@
     function submitForm() {
         var editorContent = document.querySelector('textarea[name=com]');
         editorContent.value = quill.root.innerHTML;
+
+        // Set current time
+        document.querySelector('input[name=submissionTime]').value = getCurrentTime();
+
         document.querySelector('form').submit();
+    }
+
+
+    function getCurrentTime() {
+        var now = new Date();
+        var tzoffset = now.getTimezoneOffset() * 60000; // offset in milliseconds
+        var localISOTime = (new Date(Date.now() - tzoffset)).toISOString().slice(0, -1);
+        return localISOTime;
     }
 </script>
 </head>
@@ -129,7 +141,10 @@
             <td>
                 <select class="input-box" name="DepType">
                     <option value="">--Select--</option>
-                    <option value="Security">Cyber Security</option>
+                    <option value="Security">Security</option>
+                    <option value="Networking">Networking</option>
+                    <option value="CMS">CMS</option>
+                    <option value="Data">Data</option>
                 </select>
             </td>
         </tr>
@@ -152,6 +167,10 @@
                 </div>
             </td>
         </tr>
+        <tr>
+            <td>Submission Time:</td>
+            <td><input type="hidden" name="submissionTime" value=""></td>
+        </tr>
     </table>
     <center>
         <button type="button" class="btn" onclick="window.location.href='index.jsp'">Back</button>
@@ -164,6 +183,8 @@
     String dep1 = request.getParameter("DepType");
     String shiftType = request.getParameter("shiftType");
     String com1 = request.getParameter("com");
+    String submissionTime = request.getParameter("submissionTime");
+
     
     // Generate timestamp in Asia/Kolkata timezone
     String time = Instant.now().atZone(ZoneId.of("Asia/Kolkata")).format(DateTimeFormatter.ofPattern("HH:mm:ss"));
@@ -172,25 +193,24 @@
         !date1.isEmpty() && !name1.isEmpty() && !dep1.isEmpty() && !shiftType.isEmpty() && !com1.isEmpty()) { 
         String url = "jdbc:sqlserver://shodb.database.windows.net:1433;databaseName=shodb;user=bhuvana;password=Bhuvaneswari@15";
         String query = "INSERT INTO dbo.snp (date, name, department, shiftType, comments, submissionTime) VALUES (?, ?, ?, ?, ?, ?)";
-        
-        try {
-            Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-            Connection connect = DriverManager.getConnection(url);
-            PreparedStatement ps = connect.prepareStatement(query);
-            ps.setString(1, date1);
-            ps.setString(2, name1);
-            ps.setString(3, dep1);
-            ps.setString(4, shiftType);
-            ps.setString(5, com1);
-            ps.setString(6, time); // Use 'time' variable here for submissionTime
-            int rs1 = ps.executeUpdate();
-            if (rs1 > 0) {
-                out.println("<center><p class='success-message'>Record Added..</p></center>");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            out.println("<center><p class='error-message'>An error occurred while processing your request.</p></center>");
-        }
+try {
+    Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+    Connection connect = DriverManager.getConnection(url);
+    PreparedStatement ps = connect.prepareStatement(query);
+    ps.setString(1, date1);
+    ps.setString(2, name1);
+    ps.setString(3, dep1);
+    ps.setString(4, shiftType);
+    ps.setString(5, com1);
+    ps.setString(6, submissionTime); // Use submissionTime variable here
+    int rs1 = ps.executeUpdate();
+    if (rs1 > 0) {
+        out.println("<center><p class='success-message'>Record Added..</p></center>");
+    }
+} catch (Exception e) {
+    e.printStackTrace();
+    out.println("<center><p class='error-message'>An error occurred while processing your request.</p></center>");
+}
     } else {
         out.println("<center><p class='error-message'>Please Insert the Data...!!!</p></center>");
     }
