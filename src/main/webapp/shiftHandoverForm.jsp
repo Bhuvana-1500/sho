@@ -1,14 +1,10 @@
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>
-<%@ page import="java.sql.*" %>
+<%@ page import="java.sql.*, java.time.*, java.time.format.DateTimeFormatter" %>
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="ISO-8859-1">
-<title>ShiftHandover</title>
-<!-- Include Quill CSS -->
-<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
-<!-- Include Quill JavaScript -->
-<script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+<title>SearchDetails</title>
 <style>
     body {
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -19,12 +15,42 @@
         color: white;
         padding: 10px;
         border-radius: 5px;
+        height: 50px;
+        width: 300px;
+        margin: auto; /* Center the heading */
     }
     .input-box {
-        width: 400px; /* Increased width for long comments */
+        width: 300px;
         padding: 10px;
         border: 2px solid navy;
         border-radius: 5px;
+    }
+    table {
+        border-collapse: collapse;
+        width: 100%;
+        border: 2px solid darkblue;
+    }
+    .tb1 {
+        border: 0px;
+    }
+    th, td {
+        padding: 8px;
+        text-align: center;
+        border: 1px solid darkblue;
+        vertical-align: top; /* Align text to the top */
+    }
+    th {
+        background-color: darkblue;
+        color: white;
+    }
+    form {
+        text-align: left;
+    }
+    table input[type="date"], table input[type="text"], table select {
+        width: calc(100% - 18px);
+        padding: 6px;
+        margin: 0;
+        box-sizing: border-box;
     }
     .btn {
         background-color: darkblue;
@@ -39,161 +65,152 @@
         background-color: navy;
     }
     .container {
-        height: 700px;
-        width: 700px;
+        width: auto; /* Allow container to expand based on content */
+        max-width: 1000px; /* Limit maximum width */
         margin: auto;
         background-color: lightsteelblue;
         border-radius: 15px;
-        padding: 50px;
+        padding: 20px;
+        overflow-x: auto; /* Enable horizontal scrolling if needed */
     }
-    table {
-        margin: auto;
-    }
-    .message {
-        font-size: 1.2em;
-    }
-    .success-message {
+    .green-text {
         color: green;
     }
-    .error-message {
-        color: red;
-    }
-    .ql-editor {
-        min-height: 200px; /* Minimum height for Quill editor */
-        background-color: white; /* White background for Quill editor */
-    }
-    #quill-container {
-        border: 2px solid darkblue; /* Dark blue border for entire Quill container */
-        border-radius: 5px;
-        padding: 10px;
-    }
-    .ql-toolbar.ql-snow {
-        border: none; /* Remove default border */
-    }
-    .ql-container.ql-snow {
-        border: none; /* Remove default border */
+    .comments {
+        word-wrap: break-word; /* Break long words */
+        max-width: 300px; /* Set maximum width */
+       /* max-height: 100px; /* Set maximum height */
+        /*overflow-y: auto; /* Add vertical scroll if text exceeds height */
+        /*overflow-x: auto; /* Hide horizontal scroll if any */
     }
 </style>
 <script>
     window.onload = function() {
-        var today = new Date();
-        var dd = String(today.getDate()).padStart(2, '0');
-        var mm = String(today.getMonth() + 1).padStart(2, '0');
-        var yyyy = today.getFullYear();
-
-        today = yyyy + '-' + mm + '-' + dd;
-        document.getElementById('currentDate').value = today;
-    }
-
-    var quill;
-
-    document.addEventListener('DOMContentLoaded', function() {
-        quill = new Quill('#editor-container', {
-            theme: 'snow',
-            modules: {
-                toolbar: [
-                    [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-                    ['bold', 'italic', 'underline', 'strike'],
-                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                    ['link', 'image', 'video'],
-                    ['clean']
-                ]
-            }
-        });
-    });
-
-    // Save Quill content to textarea on form submit
-    function submitForm() {
-        var editorContent = document.querySelector('textarea[name=com]');
-        editorContent.value = quill.root.innerHTML;
-        document.querySelector('form').submit();
-    }
+        var today = new Date().toISOString().split('T')[0];
+        document.getElementsByName('startDate')[0].value = today;
+        document.getElementsByName('endDate')[0].value = today;
+    };
 </script>
 </head>
 <body>
 <div class="container">
-<center>
-<form method="post" onsubmit="submitForm(); return false;">
-    <h1>Shift Handover</h1>
-    <table>
-        <tr>
-            <td>Date:</td>
-            <td><input type="date" id="currentDate" name="date" class="input-box"></td>
-        </tr>
-        <tr>
-            <td>Name:</td>
-            <td><input type="text" name="name" value="<%= session.getAttribute("username") %>" class="input-box" readonly></td>
-        </tr>
-        <tr>
-            <td>Department:</td>
-            <td>
-                <select class="input-box" name="DepType">
-                    <option value="">--Select--</option>
-                    <option value="Security">Cyber Security</option>
-                </select>
-            </td>
-        </tr>
-        <tr>
-            <td>Shift Type:</td>
-            <td>
-                <select name="shiftType" class="input-box">
-                    <option value="Morning">Morning Shift</option>
-                    <option value="Evening">Evening Shift</option>
-                    <option value="Night">Night Shift</option>
-                </select>
-            </td>
-        </tr>
-        <tr>
-            <td>Comments:</td>
-            <td>
-                <textarea name="com" style="display:none;"></textarea>
-                <div id="quill-container">
-                    <div id="editor-container" style="height: 300px;" class="input-box"></div>
-                </div>
-            </td>
-        </tr>
-    </table>
     <center>
-        <button type="button" class="btn" onclick="window.location.href='index.jsp'">Back</button>
-        <input type="submit" class="btn" value="Submit">
+    <div style="width:300px;">
+    <form method="post">
+        <h1>Search Your Details</h1><br>
+        <center>
+        <table class="tb1">
+            <tr>
+                <td>Start Date:</td>
+                <td><input type="date" class="input-box" name="startDate"></td>
+            </tr>
+            <tr>
+                <td>End Date:</td>
+                <td><input type="date" class="input-box" name="endDate"></td>
+            </tr>
+            <tr>
+                <td>Name:</td>
+                <td><input type="text" class="input-box" name="name"></td>
+            </tr>
+            <tr>
+                <td>Shift Type:</td>
+                <td>
+                    <select class="input-box" name="shiftType">
+                        <option value="">--Select--</option>
+                        <option value="Morning">Morning Shift</option>
+                        <option value="Evening">Evening Shift</option>
+                        <option value="Night">Night Shift</option>
+                    </select>
+                </td>
+            </tr>
+        </table>
+    </center> <br> <br>
+        <center>
+            <button type="button" onclick="window.location.href='index.jsp'" class="btn">Back</button>
+            <input type="submit" value="Search" class="btn">
+        </center>
+    </form>
+    </div>
     </center>
-</form>
-<%
-    String date1 = request.getParameter("date");
-    String name1 = request.getParameter("name");
-    String dep1 = request.getParameter("DepType");
-    String shiftType = request.getParameter("shiftType");
-    String com1 = request.getParameter("com");
-    String timestamp = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new java.util.Date());
 
-    if (date1 != null && name1 != null && dep1 != null && shiftType != null && com1 != null && 
-        !date1.isEmpty() && !name1.isEmpty() && !dep1.isEmpty() && !shiftType.isEmpty() && !com1.isEmpty()) { 
-        String url = "jdbc:sqlserver://shodb.database.windows.net:1433;databaseName=shodb;user=bhuvana;password=Bhuvaneswari@15";
-        String query = "INSERT INTO dbo.snp (date, name, department, shiftType, comments, submissionTime) VALUES (?, ?, ?, ?, ?, ?)";
-        
+    <%
+    boolean searchPerformed = request.getParameter("startDate") != null || request.getParameter("endDate") != null || request.getParameter("name") != null || request.getParameter("shiftType") != null;
+    if (searchPerformed) {
+        String startDate = request.getParameter("startDate");
+        String endDate = request.getParameter("endDate");
+        String name = request.getParameter("name");
+        String shiftType = request.getParameter("shiftType");
+
+        StringBuilder query = new StringBuilder("SELECT * FROM snp WHERE 1=1");
+        if (startDate != null && !startDate.isEmpty()) {
+            query.append(" AND date >= ?");
+        }
+        if (endDate != null && !endDate.isEmpty()) {
+            query.append(" AND date <= ?");
+        }
+        if (name != null && !name.isEmpty()) {
+            query.append(" AND name LIKE ?");
+        }
+        if (shiftType != null && !shiftType.isEmpty()) {
+            query.append(" AND shiftType = ?");
+        }
+
         try {
+            String url = "jdbc:sqlserver://shodb.database.windows.net:1433;databaseName=shodb;user=bhuvana;password=Bhuvaneswari@15";
             Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
             Connection connect = DriverManager.getConnection(url);
-            PreparedStatement ps = connect.prepareStatement(query);
-            ps.setString(1, date1);
-            ps.setString(2, name1);
-            ps.setString(3, dep1);
-            ps.setString(4, shiftType);
-            ps.setString(5, com1);
-            ps.setString(6, timestamp);
-            int rs1 = ps.executeUpdate();
-            if (rs1 > 0) {
-                out.println("<center><p class='success-message'>Record Added..</p></center>");
+            PreparedStatement ps = connect.prepareStatement(query.toString());
+            
+            int paramIndex = 1;
+            if (startDate != null && !startDate.isEmpty()) {
+                ps.setString(paramIndex++, startDate);
+            }
+            if (endDate != null && !endDate.isEmpty()) {
+                ps.setString(paramIndex++, endDate);
+            }
+            if (name != null && !name.isEmpty()) {
+                ps.setString(paramIndex++, "%" + name + "%");
+            }
+            if (shiftType != null && !shiftType.isEmpty()) {
+                ps.setString(paramIndex++, shiftType);
+            }
+
+            ResultSet rs = ps.executeQuery();
+
+            if (!rs.isBeforeFirst()) { // Check if ResultSet is empty
+                out.println("<center><h2 style='color:red;'>Record not found</h2></center>");
+            } else {
+                out.println("<center><h2 class='green-text'>Your details based on your search:</h2></center>");
+                out.println("<center><form method='post'><table border='1' class='tb1'>");
+                out.println("<tr><th>Date</th><th>Name</th><th>Department</th><th>Shift Type</th><th>Comments</th><th>Time of Submission</th></tr>");
+
+                while (rs.next()) {
+                    // Other fields retrieval
+                    String id = rs.getString("id");
+                    String dt = rs.getString("date");
+                    String nm = rs.getString("name");
+                    String dp = rs.getString("department");
+                    String st = rs.getString("shiftType");
+                    String co = rs.getString("comments");
+                    Timestamp ts = rs.getTimestamp("submissionTime"); // Use Timestamp for date-time retrieval
+                    String formattedTime = ts.toInstant().atZone(ZoneId.of("Asia/Kolkata")).format(DateTimeFormatter.ofPattern("HH:mm:ss"));
+                    out.println("<tr>");
+                    out.println("<td><input type='hidden' name='id' value='" + id + "'>" + dt + "</td>");
+                    out.println("<td>" + nm + "</td>");
+                    out.println("<td>" + dp + "</td>");
+                    out.println("<td>" + st + "</td>");
+                    out.println("<td><div class='comments'>" + co + "</div></td>");
+                    out.println("<td>" + formattedTime + "</td>");
+                    out.println("</tr>");
+                }
+                out.println("</table></form></center>");
             }
         } catch (Exception e) {
             e.printStackTrace();
-            out.println("<center><p class='error-message'>An error occurred while processing your request.</p></center>");
+            out.println("<center><h2 style='color:red;'>An error occurred while processing your request</h2></center>");
         }
-    } else {
-        out.println("<center><p class='error-message'>Please Insert the Data...!!!</p></center>");
     }
-%>
-</center>
+    %>
 </div>
 </body>
 </html>
