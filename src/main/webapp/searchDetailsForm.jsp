@@ -1,5 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>
-<%@ page import="java.sql.*" %>
+<%@ page import="java.sql.*, java.time.*, java.time.format.DateTimeFormatter" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -185,20 +185,22 @@
                 out.println("<tr><th>Date</th><th>Name</th><th>Department</th><th>Shift Type</th><th>Comments</th><th>Time of Submission</th></tr>");
 
                 while (rs.next()) {
+                    // Other fields retrieval
                     String id = rs.getString("id");
                     String dt = rs.getString("date");
                     String nm = rs.getString("name");
                     String dp = rs.getString("department");
                     String st = rs.getString("shiftType");
                     String co = rs.getString("comments");
-                    Time ts = rs.getTime("submissionTime"); // Changed to Time to only show time
+                    Timestamp ts = rs.getTimestamp("submissionTime"); // Use Timestamp for date-time retrieval
+                    String formattedTime = ts.toInstant().atZone(ZoneId.of("Asia/Kolkata")).format(DateTimeFormatter.ofPattern("HH:mm:ss"));
                     out.println("<tr>");
                     out.println("<td><input type='hidden' name='id' value='" + id + "'>" + dt + "</td>");
                     out.println("<td>" + nm + "</td>");
                     out.println("<td>" + dp + "</td>");
                     out.println("<td>" + st + "</td>");
                     out.println("<td><div class='comments'>" + co + "</div></td>");
-                    out.println("<td>" + ts + "</td>");
+                    out.println("<td>" + formattedTime + "</td>");
                     out.println("</tr>");
                 }
                 out.println("</table></form></center>");
