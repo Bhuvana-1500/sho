@@ -129,10 +129,7 @@
             <td>
                 <select class="input-box" name="DepType">
                     <option value="">--Select--</option>
-                    <option value="Security">Security</option>
-                    <option value="Networking">Networking</option>
-                    <option value="CMS">CMS</option>
-                    <option value="Data">Data</option>
+                    <option value="Security">Cyber Security</option>
                 </select>
             </td>
         </tr>
