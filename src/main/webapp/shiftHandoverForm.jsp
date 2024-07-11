@@ -126,7 +126,15 @@
         </tr>
         <tr>
             <td>Department:</td>
-            <td><input type="text" placeholder="Enter Your Team name" name="dep" class="input-box"></td>
+            <td>
+                <select class="input-box" name="DepType">
+                    <option value="">--Select--</option>
+                    <option value="Security">Security</option>
+                    <option value="Networking">Networking</option>
+                    <option value="CMS">CMS</option>
+                    <option value="Data">Data</option>
+                </select>
+            </td>
         </tr>
         <tr>
             <td>Shift Type:</td>
@@ -156,7 +164,7 @@
 <%
     String date1 = request.getParameter("date");
     String name1 = request.getParameter("name");
-    String dep1 = request.getParameter("dep");
+    String dep1 = request.getParameter("DepType");
     String shiftType = request.getParameter("shiftType");
     String com1 = request.getParameter("com");
     String timestamp = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new java.util.Date());
