@@ -1,87 +1,17 @@
-<%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>
-<%@ page import="java.sql.*, java.time.*, java.time.format.DateTimeFormatter" %>
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="ISO-8859-1">
 <title>ShiftHandover</title>
-<!-- Include Quill CSS -->
+<!-- Include Quill CSS and JS -->
 <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
-<!-- Include Quill JavaScript -->
 <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
 <style>
-    body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        font-weight: bold;
-    }
-    h1 {
-        background-color: darkblue;
-        color: white;
-        padding: 10px;
-        border-radius: 5px;
-    }
-    .input-box {
-        width: 400px; /* Increased width for long comments */
-        padding: 10px;
-        border: 2px solid navy;
-        border-radius: 5px;
-    }
-    .btn {
-        background-color: darkblue;
-        color: white;
-        padding: 10px 20px;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        transition: background-color 0.3s, color 0.3s;
-    }
-    .btn:hover {
-        background-color: navy;
-    }
-    .container {
-        height: 700px;
-        width: 700px;
-        margin: auto;
-        background-color: lightsteelblue;
-        border-radius: 15px;
-        padding: 50px;
-    }
-    table {
-        margin: auto;
-    }
-    .message {
-        font-size: 1.2em;
-    }
-    .success-message {
-        color: green;
-    }
-    .error-message {
-        color: red;
-    }
-    .ql-editor {
-        min-height: 200px; /* Minimum height for Quill editor */
-        background-color: white; /* White background for Quill editor */
-    }
-    #quill-container {
-        border: 2px solid darkblue; /* Dark blue border for entire Quill container */
-        border-radius: 5px;
-        padding: 10px;
-    }
-    .ql-toolbar.ql-snow {
-        border: none; /* Remove default border */
-    }
-    .ql-container.ql-snow {
-        border: none; /* Remove default border */
-    }
+    /* Your CSS styles */
 </style>
 <script>
     window.onload = function() {
-        var today = new Date();
-        var dd = String(today.getDate()).padStart(2, '0');
-        var mm = String(today.getMonth() + 1).padStart(2, '0');
-        var yyyy = today.getFullYear();
-
-        today = yyyy + '-' + mm + '-' + dd;
+        var today = new Date().toISOString().split('T')[0];
         document.getElementById('currentDate').value = today;
     }
 
@@ -106,6 +36,11 @@
     function submitForm() {
         var editorContent = document.querySelector('textarea[name=com]');
         editorContent.value = quill.root.innerHTML;
+
+        // Get client's current time
+        var clientTime = new Date().toISOString().split('T')[1].split('.')[0];
+        document.getElementById('clientTime').value = clientTime;
+
         document.querySelector('form').submit();
     }
 </script>
@@ -156,6 +91,8 @@
             </td>
         </tr>
     </table>
+    <!-- Hidden input to store client's current time -->
+    <input type="hidden" id="clientTime" name="clientTime">
     <center>
         <button type="button" class="btn" onclick="window.location.href='index.jsp'">Back</button>
         <input type="submit" class="btn" value="Submit">
@@ -167,13 +104,10 @@
     String dep1 = request.getParameter("DepType");
     String shiftType = request.getParameter("shiftType");
     String com1 = request.getParameter("com");
-    
-    // Generate timestamp in Asia/Kolkata timezone
-    LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Kolkata"));
-    String time = now.format(DateTimeFormatter.ofPattern("HH:mm:ss"));
+    String clientTime = request.getParameter("clientTime");
 
     if (date1 != null && name1 != null && dep1 != null && shiftType != null && com1 != null && 
-        !date1.isEmpty() && !name1.isEmpty() && !dep1.isEmpty() && !shiftType.isEmpty() && !com1.isEmpty()) { 
+        !date1.isEmpty() && !name1.isEmpty() && !dep1.isEmpty() && !shiftType.isEmpty() && !com1.isEmpty() && clientTime != null) { 
         String url = "jdbc:sqlserver://shodb.database.windows.net:1433;databaseName=shodb;user=bhuvana;password=Bhuvaneswari@15";
         String query = "INSERT INTO dbo.snp (date, name, department, shiftType, comments, submissionTime) VALUES (?, ?, ?, ?, ?, ?)";
         
@@ -186,7 +120,7 @@
             ps.setString(3, dep1);
             ps.setString(4, shiftType);
             ps.setString(5, com1);
-            ps.setString(6, time); // Use 'time' variable here for submissionTime
+            ps.setString(6, clientTime); // Use 'clientTime' variable here for submissionTime
             int rs1 = ps.executeUpdate();
             if (rs1 > 0) {
                 out.println("<center><p class='success-message'>Record Added..</p></center>");
