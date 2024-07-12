@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>
 <%@ page import="java.sql.*" %>
+<%@ page import="java.text.SimpleDateFormat, java.util.TimeZone, java.util.Calendar" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -163,7 +164,13 @@
     String dep1 = request.getParameter("DepType");
     String shiftType = request.getParameter("shiftType");
     String com1 = request.getParameter("com");
-    String timestamp = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new java.util.Date());
+
+    // Set the time zone to IST
+    TimeZone istTimeZone = TimeZone.getTimeZone("Asia/Kolkata");
+    Calendar calendar = Calendar.getInstance(istTimeZone);
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    sdf.setTimeZone(istTimeZone);
+    String timestamp = sdf.format(calendar.getTime());
 
     if (date1 != null && name1 != null && dep1 != null && shiftType != null && com1 != null && 
         !date1.isEmpty() && !name1.isEmpty() && !dep1.isEmpty() && !shiftType.isEmpty() && !com1.isEmpty()) { 
