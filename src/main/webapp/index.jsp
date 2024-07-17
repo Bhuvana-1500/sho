@@ -44,8 +44,13 @@
     .top-right-container {
         position: absolute;
         top: 10px;
-        right: 230px;
+        right: 10px; /* Adjust right position as needed */
         text-align: right;
+    }
+    .top-right-container img {
+        height: 60px; /* Adjust height as needed */
+        width: auto; /* Maintain aspect ratio */
+        margin-top: 10px;
     }
     .top-right-container .btn {
         height: auto;
@@ -102,6 +107,7 @@
             out.println("<div><button class='sign-out-btn' onclick=\"window.location.href='logout.jsp'\">Sign Out</button></div>");
         }
     %>
+    <img src="C:\Users\BhuvaneswariMungari\Downloads\Picture1.png" alt="Logo">
 </div>
 <center>
 <div class="center-content">
