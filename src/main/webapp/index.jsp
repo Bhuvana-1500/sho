@@ -41,13 +41,19 @@
         background-color: #ccc;
         color: white;
     }
-    .top-right-container {
+    .top-left-container {
         position: absolute;
         top: 10px;
-        right: 230px;
-        text-align: right;
+        left: 10px; /* Adjust left position as needed */
+        text-align: left;
     }
-    .top-right-container .btn {
+    .top-left-container img {
+        height: 100px; /* Adjust height as needed */
+        width: auto; /* Maintain aspect ratio */
+        margin-top: 40px;
+        margin-left: 250px;
+    }
+    .top-left-container .btn {
         height: auto;
         width: auto;
         padding: 5px 10px;
@@ -58,7 +64,7 @@
         font-size: 16px;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Use Apotos font */
     }
-    .top-right-container .btn:hover {
+    .top-left-container .btn:hover {
         background-color: transparent;
         color: navy;
         text-decoration: underline;
@@ -93,7 +99,7 @@
 </head>
 <body>
 <div style="height:700px; width:700px; margin:auto; background-color:lightsteelblue; border-radius:15px; padding:50px;">
-<div class="top-right-container">
+<div class="top-left-container">
     <%
         String user = request.getRemoteUser();
         if (user != null) {
@@ -102,12 +108,13 @@
             out.println("<div><button class='sign-out-btn' onclick=\"window.location.href='logout.jsp'\">Sign Out</button></div>");
         }
     %>
+    <img src="logo2.png">
 </div>
 <center>
 <div class="center-content">
     <h1>Welcome to Service Portal</h1>
     <%
-           if (user != null) {
+if (user != null) {
             out.println("<span class='welcome-text'>Welcome, " + user + "!</span><br><br>");
             out.println("<div class='button-container'>");
             out.println("<button class='btn' onclick=\"window.location.href='shiftHandoverForm.jsp'\">Shift Handover Form</button>");
@@ -116,7 +123,6 @@
             } else {
             out.println("<button class='btn' onclick=\"window.location.href='/.auth/login/aad'\">Sign In</button>");
         }
-        
     %>
 </div>
 </center>
