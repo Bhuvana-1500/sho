@@ -42,16 +42,20 @@
         color: white;
     }
     .top-left-container {
-        position: absolute;
-        top: 10px;
-        left: 10px; /* Adjust left position as needed */
-        text-align: left;
+        position: relative; /* Change to relative positioning */
+        text-align: left; /* Align contents to the left */
     }
-    .top-right-container img {
+    .top-left-container .user-info {
+        position: absolute; /* Position the user info and sign-out button absolutely */
+        top: 10px;
+        right: 10px; /* Adjust right position as needed */
+        text-align: right; /* Align text to the right */
+    }
+    .top-left-container img {
         height: 100px; /* Adjust height as needed */
         width: auto; /* Maintain aspect ratio */
-        margin-top: 20px;
-        margin-left: 250px;
+        margin-top: 1px;
+        margin-left: 10px; /* Adjust left margin for logo */
     }
     .top-left-container .btn {
         height: auto;
@@ -72,6 +76,8 @@
     .center-content {
         text-align: center;
         margin-top: 150px;
+        height:auto;
+        width: auto;
     }
     .button-container {
         display: flex;
@@ -100,21 +106,23 @@
 <body>
 <div style="height:700px; width:700px; margin:auto; background-color:lightsteelblue; border-radius:15px; padding:50px;">
 <div class="top-left-container">
-    <%
+    <div class="user-info">
+        <%
         String user = request.getRemoteUser();
         if (user != null) {
             session.setAttribute("username", user);
             out.println("<span>" + user + "</span><br><br>"); 
             out.println("<div><button class='sign-out-btn' onclick=\"window.location.href='logout.jsp'\">Sign Out</button></div>");
         }
-    %>
+        %>
+    </div>
     <img src="logo2.png">
 </div>
 <center>
 <div class="center-content">
     <h1>Welcome to Service Portal</h1>
     <%
-if (user != null) {
+        if (user != null) {
             out.println("<span class='welcome-text'>Welcome, " + user + "!</span><br><br>");
             out.println("<div class='button-container'>");
             out.println("<button class='btn' onclick=\"window.location.href='shiftHandoverForm.jsp'\">Shift Handover Form</button>");
