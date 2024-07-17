@@ -47,10 +47,10 @@
         left: 10px; /* Adjust left position as needed */
         text-align: left;
     }
-    .top-left-container img {
+    .top-right-container img {
         height: 100px; /* Adjust height as needed */
         width: auto; /* Maintain aspect ratio */
-        margin-top: 40px;
+        margin-top: 20px;
         margin-left: 250px;
     }
     .top-left-container .btn {
