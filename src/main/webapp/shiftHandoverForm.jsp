@@ -1,11 +1,21 @@
-<%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>
-<%@ page import="java.sql.*" %>
-<%@ page import="java.text.SimpleDateFormat, java.util.TimeZone, java.util.Calendar" %>
+<%@ page import="java.util.TimeZone" %>
+<%@ page import="java.util.Calendar" %>
+<%@ page import="java.text.SimpleDateFormat" %>
+<%@ page import="java.sql.Connection" %>
+<%@ page import="java.sql.PreparedStatement" %>
+<%@ page import="java.sql.DriverManager" %>
+<%@ page import="java.io.PrintWriter" %>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="ISO-8859-1">
+<meta charset="UTF-8">
 <title>ShiftHandover</title>
+<!-- Include jQuery and jQuery UI CSS and JS -->
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
 <!-- Include Quill CSS -->
 <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
 <!-- Include Quill JavaScript -->
@@ -76,20 +86,11 @@
     }
 </style>
 <script>
-    window.onload = function() {
-        var today = new Date();
-        var dd = String(today.getDate()).padStart(2, '0');
-        var mm = String(today.getMonth() + 1).padStart(2, '0');
-        var yyyy = today.getFullYear();
-
-        today = yyyy + '-' + mm + '-' + dd;
+    $(document).ready(function() {
+        var today = new Date().toISOString().slice(0, 10);
         document.getElementById('currentDate').value = today;
-    }
 
-    var quill;
-
-    document.addEventListener('DOMContentLoaded', function() {
-        quill = new Quill('#editor-container', {
+        var quill = new Quill('#editor-container', {
             theme: 'snow',
             modules: {
                 toolbar: [
@@ -101,25 +102,25 @@
                 ]
             }
         });
-    });
 
-    // Save Quill content to textarea on form submit
-    function submitForm() {
-        var editorContent = document.querySelector('textarea[name=com]');
-        editorContent.value = quill.root.innerHTML;
-        document.querySelector('form').submit();
-    }
+        function submitForm() {
+            var quillContent = document.querySelector('.ql-editor').innerHTML; // Corrected selector
+            document.getElementById('editorContent').value = quillContent;
+            document.querySelector('form').submit();
+        }
+
+        document.querySelector('.btn[value="Submit"]').addEventListener('click', submitForm);
+    });
 </script>
 </head>
 <body>
 <div class="container">
-<center>
-<form method="post" onsubmit="submitForm(); return false;">
-    <h1>Shift Handover</h1>
+<form method="post">
+    <center><h1>Shift Handover</h1></center>
     <table>
         <tr>
             <td>Date:</td>
-            <td><input type="date" id="currentDate" name="date" class="input-box"></td>
+            <td><input type="date" id="currentDate" name="date" class="input-box" required></td>
         </tr>
         <tr>
             <td>Name:</td>
@@ -128,7 +129,7 @@
         <tr>
             <td>Department:</td>
             <td>
-                <select name="DepType" class="input-box">
+                <select name="DepType" class="input-box" required>
                     <option value="security">Cyber Security</option>
                 </select>
             </td>
@@ -136,7 +137,7 @@
         <tr>
             <td>Shift Type:</td>
             <td>
-                <select name="shiftType" class="input-box">
+                <select name="shiftType" class="input-box" required>
                     <option value="Morning">Morning Shift</option>
                     <option value="Evening">Evening Shift</option>
                     <option value="Night">Night Shift</option>
@@ -146,7 +147,7 @@
         <tr>
             <td>Comments:</td>
             <td>
-                <textarea name="com" style="display:none;"></textarea>
+                <textarea name="com" id="editorContent" style="display:none;"></textarea>
                 <div id="quill-container">
                     <div id="editor-container" style="height: 300px;" class="input-box"></div>
                 </div>
@@ -155,51 +156,61 @@
     </table>
     <center>
         <button type="button" class="btn" onclick="window.location.href='index.jsp'">Back</button>
-        <input type="submit" class="btn" value="Submit">
+        <input type="button" class="btn" value="Submit">
     </center>
 </form>
+
 <%
-    String date1 = request.getParameter("date");
-    String name1 = request.getParameter("name");
-    String dep1 = request.getParameter("DepType");
-    String shiftType = request.getParameter("shiftType");
-    String com1 = request.getParameter("com");
+    if ("POST".equalsIgnoreCase(request.getMethod())) {
+        String date1 = request.getParameter("date");
+        String name1 = request.getParameter("name");
+        String dep1 = request.getParameter("DepType");
+        String shiftType = request.getParameter("shiftType");
+        String com1 = request.getParameter("com");
 
-    // Set the time zone to IST
-    TimeZone istTimeZone = TimeZone.getTimeZone("Asia/Kolkata");
-    Calendar calendar = Calendar.getInstance(istTimeZone);
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    sdf.setTimeZone(istTimeZone);
-    String timestamp = sdf.format(calendar.getTime());
+        // Set the time zone to IST
+        TimeZone istTimeZone = TimeZone.getTimeZone("Asia/Kolkata");
+        Calendar calendar = Calendar.getInstance(istTimeZone);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        sdf.setTimeZone(istTimeZone);
+        String timestamp = sdf.format(calendar.getTime());
 
-    if (date1 != null && name1 != null && dep1 != null && shiftType != null && com1 != null && 
-        !date1.isEmpty() && !name1.isEmpty() && !dep1.isEmpty() && !shiftType.isEmpty() && !com1.isEmpty()) { 
-        String url = "jdbc:sqlserver://shodb.database.windows.net:1433;databaseName=shodb;user=bhuvana;password=Bhuvaneswari@15";
-        String query = "INSERT INTO dbo.snp (date, name, department, shiftType, comments, submissionTime) VALUES (?, ?, ?, ?, ?, ?)";
-        
-        try {
-            Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-            Connection connect = DriverManager.getConnection(url);
-            PreparedStatement ps = connect.prepareStatement(query);
-            ps.setString(1, date1);
-            ps.setString(2, name1);
-            ps.setString(3, dep1);
-            ps.setString(4, shiftType);
-            ps.setString(5, com1);
-            ps.setString(6, timestamp);
-            int rs1 = ps.executeUpdate();
-            if (rs1 > 0) {
-                out.println("<center><p class='success-message'>Record Added..</p></center>");
+        if (date1 != null && name1 != null && dep1 != null && shiftType != null && com1 != null && 
+            !date1.isEmpty() && !name1.isEmpty() && !dep1.isEmpty() && !shiftType.isEmpty() && !com1.isEmpty()) { 
+            String url = "jdbc:sqlserver://shodb.database.windows.net:1433;databaseName=shodb;user=bhuvana;password=Bhuvaneswari@15";
+            String query = "INSERT INTO dbo.snp (date, name, department, shiftType, comments, submissionTime) VALUES (?, ?, ?, ?, ?, ?)";
+            
+            try {
+                Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+                Connection connect = DriverManager.getConnection(url);
+                PreparedStatement ps = connect.prepareStatement(query);
+                ps.setString(1, date1);
+                ps.setString(2, name1);
+                ps.setString(3, dep1);
+                ps.setString(4, shiftType);
+                ps.setString(5, com1);
+                ps.setString(6, timestamp);
+
+                int rowsAffected = ps.executeUpdate();
+
+                if (rowsAffected > 0) {
+                    out.println("<p class='message success-message'> successfully.</p>");
+                } else {
+                    out.println("<p class='message error-message'>Error: Data could not be saved.</p>");
+                }
+
+                ps.close();
+                connect.close();
+            } catch (Exception e) {
+                out.println("<p class='message error-message'>Error: " + e.getMessage() + "</p>");
+                e.printStackTrace(new PrintWriter(out)); // Wrap JspWriter with PrintWriter
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-            out.println("<center><p class='error-message'>An error occurred while processing your request.</p></center>");
+        } else {
+            out.println("<p class='message error-message'>Please Insert the Data...!!!</p>");
         }
-    } else {
-        out.println("<center><p class='error-message'>Please Insert the Data...!!!</p></center>");
     }
 %>
-</center>
+
 </div>
 </body>
 </html>
