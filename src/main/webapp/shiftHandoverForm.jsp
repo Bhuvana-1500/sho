@@ -1,3 +1,6 @@
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>
+<%@ page import="java.sql.*" %>
+<%@ page import="java.text.SimpleDateFormat, java.util.TimeZone, java.util.Calendar" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -8,9 +11,81 @@
 <!-- Include Quill JavaScript -->
 <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
 <style>
-    /* Your existing CSS styles */
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        font-weight: bold;
+    }
+    h1 {
+        background-color: darkblue;
+        color: white;
+        padding: 10px;
+        border-radius: 5px;
+    }
+    .input-box {
+        width: 400px; /* Increased width for long comments */
+        padding: 10px;
+        border: 2px solid navy;
+        border-radius: 5px;
+    }
+    .btn {
+        background-color: darkblue;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s, color 0.3s;
+    }
+    .btn:hover {
+        background-color: navy;
+    }
+    .container {
+        height: 700px;
+        width: 700px;
+        margin: auto;
+        background-color: lightsteelblue;
+        border-radius: 15px;
+        padding: 50px;
+    }
+    table {
+        margin: auto;
+    }
+    .message {
+        font-size: 1.2em;
+    }
+    .success-message {
+        color: green;
+    }
+    .error-message {
+        color: red;
+    }
+    .ql-editor {
+        min-height: 200px; /* Minimum height for Quill editor */
+        background-color: white; /* White background for Quill editor */
+    }
+    #quill-container {
+        border: 2px solid darkblue; /* Dark blue border for entire Quill container */
+        border-radius: 5px;
+        padding: 10px;
+    }
+    .ql-toolbar.ql-snow {
+        border: none; /* Remove default border */
+    }
+    .ql-container.ql-snow {
+        border: none; /* Remove default border */
+    }
 </style>
 <script>
+    window.onload = function() {
+        var today = new Date();
+        var dd = String(today.getDate()).padStart(2, '0');
+        var mm = String(today.getMonth() + 1).padStart(2, '0');
+        var yyyy = today.getFullYear();
+
+        today = yyyy + '-' + mm + '-' + dd;
+        document.getElementById('currentDate').value = today;
+    }
+
     var quill;
 
     document.addEventListener('DOMContentLoaded', function() {
@@ -26,64 +101,7 @@
                 ]
             }
         });
-
-        // Custom handler for "@" symbol
-        quill.on('text-change', function(delta, oldDelta, source) {
-            if (source === 'user') {
-                var text = quill.getText();
-                var lastIndex = text.lastIndexOf('@');
-                if (lastIndex !== -1) {
-                    var substr = text.substring(lastIndex + 1);
-                    if (substr.length > 0) {
-                        // Call function to fetch and display user suggestions
-                        fetchUserSuggestions(substr);
-                    } else {
-                        // Hide suggestions if no text after "@"
-                        hideUserSuggestions();
-                    }
-                } else {
-                    // Hide suggestions if "@" not found
-                    hideUserSuggestions();
-                }
-            }
-        });
     });
-
-    // Function to fetch user suggestions based on input
-    function fetchUserSuggestions(query) {
-        // Example: Replace with your actual Microsoft Graph API endpoint for user search
-        var apiUrl = `https://graph.microsoft.com/v1.0/users?$filter=startswith(mail,'${query}')`;
-
-        // Fetch API call
-        fetch(apiUrl, {
-            headers: {
-                Authorization: 'Bearer <YOUR_ACCESS_TOKEN>',
-                'Content-Type': 'application/json'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            // Process fetched data and display suggestions in a dropdown or list
-            displayUserSuggestions(data.value);
-        })
-        .catch(error => {
-            console.error('Error fetching user suggestions:', error);
-        });
-    }
-
-    // Function to display user suggestions
-    function displayUserSuggestions(users) {
-        // Example: Replace with your actual implementation to display suggestions
-        console.log('User Suggestions:', users);
-        // Implement logic to show suggestions beneath Quill editor
-    }
-
-    // Function to hide user suggestions dropdown or list
-    function hideUserSuggestions() {
-        // Example: Replace with your actual implementation to hide suggestions
-        console.log('Hide suggestions');
-        // Implement logic to hide suggestions when no "@" symbol or no text after "@"
-    }
 
     // Save Quill content to textarea on form submit
     function submitForm() {
