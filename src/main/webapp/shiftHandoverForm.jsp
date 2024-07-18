@@ -1,3 +1,11 @@
+<%@ page import="java.util.TimeZone" %>
+<%@ page import="java.util.Calendar" %>
+<%@ page import="java.text.SimpleDateFormat" %>
+<%@ page import="java.sql.Connection" %>
+<%@ page import="java.sql.PreparedStatement" %>
+<%@ page import="java.sql.DriverManager" %>
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+    pageEncoding="ISO-8859-1"%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -131,19 +139,17 @@ $(document).ready(function() {
         editorContent.value = quill.root.innerHTML;
         document.querySelector('form').submit();
     }
-    window.submitForm = submitForm;
 });
 </script>
 </head>
 <body>
 <div class="container">
-<center>
-<form method="post" onsubmit="submitForm(); return false;">
+<form method="post">
     <h1>Shift Handover</h1>
     <table>
         <tr>
             <td>Date:</td>
-            <td><input type="date" id="currentDate" name="date" class="input-box"></td>
+            <td><input type="date" id="currentDate" name="date" class="input-box" required></td>
         </tr>
         <tr>
             <td>Name:</td>
@@ -152,7 +158,7 @@ $(document).ready(function() {
         <tr>
             <td>Department:</td>
             <td>
-                <select name="DepType" class="input-box">
+                <select name="DepType" class="input-box" required>
                     <option value="security">Cyber Security</option>
                 </select>
             </td>
@@ -160,7 +166,7 @@ $(document).ready(function() {
         <tr>
             <td>Shift Type:</td>
             <td>
-                <select name="shiftType" class="input-box">
+                <select name="shiftType" class="input-box" required>
                     <option value="Morning">Morning Shift</option>
                     <option value="Evening">Evening Shift</option>
                     <option value="Night">Night Shift</option>
@@ -182,49 +188,51 @@ $(document).ready(function() {
         <input type="submit" class="btn" value="Submit">
     </center>
 </form>
-<%@ page import="java.util.TimeZone, java.util.Calendar, java.text.SimpleDateFormat, java.sql.Connection, java.sql.DriverManager, java.sql.PreparedStatement" %>
+
 <%
-    String date1 = request.getParameter("date");
-    String name1 = request.getParameter("name");
-    String dep1 = request.getParameter("DepType");
-    String shiftType = request.getParameter("shiftType");
-    String com1 = request.getParameter("com");
+    if ("POST".equalsIgnoreCase(request.getMethod())) {
+        String date1 = request.getParameter("date");
+        String name1 = request.getParameter("name");
+        String dep1 = request.getParameter("DepType");
+        String shiftType = request.getParameter("shiftType");
+        String com1 = request.getParameter("com");
 
-    // Set the time zone to IST
-    TimeZone istTimeZone = TimeZone.getTimeZone("Asia/Kolkata");
-    Calendar calendar = Calendar.getInstance(istTimeZone);
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    sdf.setTimeZone(istTimeZone);
-    String timestamp = sdf.format(calendar.getTime());
+        // Set the time zone to IST
+        TimeZone istTimeZone = TimeZone.getTimeZone("Asia/Kolkata");
+        Calendar calendar = Calendar.getInstance(istTimeZone);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        sdf.setTimeZone(istTimeZone);
+        String timestamp = sdf.format(calendar.getTime());
 
-    if (date1 != null && name1 != null && dep1 != null && shiftType != null && com1 != null && 
-        !date1.isEmpty() && !name1.isEmpty() && !dep1.isEmpty() && !shiftType.isEmpty() && !com1.isEmpty()) { 
-        String url = "jdbc:sqlserver://shodb.database.windows.net:1433;databaseName=shodb;user=bhuvana;password=Bhuvaneswari@15";
-        String query = "INSERT INTO dbo.snp (date, name, department, shiftType, comments, submissionTime) VALUES (?, ?, ?, ?, ?, ?)";
-        
-        try {
-            Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-            Connection connect = DriverManager.getConnection(url);
-            PreparedStatement ps = connect.prepareStatement(query);
-            ps.setString(1, date1);
-            ps.setString(2, name1);
-            ps.setString(3, dep1);
-            ps.setString(4, shiftType);
-            ps.setString(5, com1);
-            ps.setString(6, timestamp);
-            int rs1 = ps.executeUpdate();
-            if (rs1 > 0) {
-                out.println("<center><p class='success-message'>Record Added..</p></center>");
+        if (date1 != null && name1 != null && dep1 != null && shiftType != null && com1 != null && 
+            !date1.isEmpty() && !name1.isEmpty() && !dep1.isEmpty() && !shiftType.isEmpty() && !com1.isEmpty()) { 
+            String url = "jdbc:sqlserver://shodb.database.windows.net:1433;databaseName=shodb;user=bhuvana;password=Bhuvaneswari@15";
+            String query = "INSERT INTO dbo.snp (date, name, department, shiftType, comments, submissionTime) VALUES (?, ?, ?, ?, ?, ?)";
+            
+            try {
+                Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+                Connection connect = DriverManager.getConnection(url);
+                PreparedStatement ps = connect.prepareStatement(query);
+                ps.setString(1, date1);
+                ps.setString(2, name1);
+                ps.setString(3, dep1);
+                ps.setString(4, shiftType);
+                ps.setString(5, com1);
+                ps.setString(6, timestamp);
+                int rs1 = ps.executeUpdate();
+                if (rs1 > 0) {
+                    out.println("<center><p class='success-message'>Record Added..</p></center>");
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                out.println("<center><p class='error-message'>An error occurred while processing your request.</p></center>");
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-            out.println("<center><p class='error-message'>An error occurred while processing your request.</p></center>");
+        } else {
+            out.println("<center><p class='error-message'>Please Insert the Data...!!!</p></center>");
         }
-    } else {
-        out.println("<center><p class='error-message'>Please Insert the Data...!!!</p></center>");
     }
 %>
-</center>
+
 </div>
 </body>
 </html>
