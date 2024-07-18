@@ -194,7 +194,7 @@
                 int rowsAffected = ps.executeUpdate();
 
                 if (rowsAffected > 0) {
-                    out.println("<p class='message success-message'> successfully.</p>");
+                    out.println("<p class='message success-message'>Data submitted successfully.</p>");
                 } else {
                     out.println("<p class='message error-message'>Error: Data could not be saved.</p>");
                 }
