@@ -1,11 +1,12 @@
-<%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>
-<%@ page import="java.sql.*" %>
-<%@ page import="java.text.SimpleDateFormat, java.util.TimeZone, java.util.Calendar" %>
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="ISO-8859-1">
 <title>ShiftHandover</title>
+<!-- Include jQuery and jQuery UI CSS and JS -->
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
 <!-- Include Quill CSS -->
 <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
 <!-- Include Quill JavaScript -->
@@ -76,32 +77,53 @@
     }
 </style>
 <script>
-    window.onload = function() {
-        var today = new Date();
-        var dd = String(today.getDate()).padStart(2, '0');
-        var mm = String(today.getMonth() + 1).padStart(2, '0');
-        var yyyy = today.getFullYear();
+$(document).ready(function() {
+    var quill = new Quill('#editor-container', {
+        theme: 'snow',
+        modules: {
+            toolbar: [
+                [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                ['bold', 'italic', 'underline', 'strike'],
+                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                ['link', 'image', 'video'],
+                ['clean']
+            ]
+        }
+    });
 
-        today = yyyy + '-' + mm + '-' + dd;
-        document.getElementById('currentDate').value = today;
-    }
+    quill.on('text-change', function(delta, oldDelta, source) {
+        if (source === 'user') {
+            var text = quill.getText();
+            var cursorPosition = quill.getSelection().index;
+            var lastChar = text[cursorPosition - 1];
+            if (lastChar === '@') {
+                showAutocomplete();
+            }
+        }
+    });
 
-    var quill;
-
-    document.addEventListener('DOMContentLoaded', function() {
-        quill = new Quill('#editor-container', {
-            theme: 'snow',
-            modules: {
-                toolbar: [
-                    [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-                    ['bold', 'italic', 'underline', 'strike'],
-                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                    ['link', 'image', 'video'],
-                    ['clean']
-                ]
+    function showAutocomplete() {
+        $.ajax({
+            url: 'fetchUserEmails',
+            method: 'GET',
+            success: function(data) {
+                var atPos = quill.getSelection().index;
+                $(quill.root).autocomplete({
+                    source: data,
+                    position: { my: "left top", at: "left bottom", of: quill.root },
+                    select: function(event, ui) {
+                        var email = ui.item.value;
+                        var currentText = quill.getText(0, atPos);
+                        var lastAtPos = currentText.lastIndexOf('@');
+                        var textToInsert = email.substring(1);
+                        quill.deleteText(lastAtPos + 1, atPos - lastAtPos - 1);
+                        quill.insertText(lastAtPos + 1, textToInsert);
+                        return false;
+                    }
+                }).autocomplete("search", "");
             }
         });
-    });
+    }
 
     // Save Quill content to textarea on form submit
     function submitForm() {
@@ -109,6 +131,8 @@
         editorContent.value = quill.root.innerHTML;
         document.querySelector('form').submit();
     }
+    window.submitForm = submitForm;
+});
 </script>
 </head>
 <body>
@@ -158,6 +182,7 @@
         <input type="submit" class="btn" value="Submit">
     </center>
 </form>
+<%@ page import="java.util.TimeZone, java.util.Calendar, java.text.SimpleDateFormat, java.sql.Connection, java.sql.DriverManager, java.sql.PreparedStatement" %>
 <%
     String date1 = request.getParameter("date");
     String name1 = request.getParameter("name");
