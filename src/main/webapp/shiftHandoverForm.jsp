@@ -86,6 +86,9 @@
 </style>
 <script>
 $(document).ready(function() {
+    var today = new Date().toISOString().slice(0, 10);
+    // Set the value of the currentDate input field
+    document.getElementById('currentDate').value = today;
     var quill = new Quill('#editor-container', {
         theme: 'snow',
         modules: {
