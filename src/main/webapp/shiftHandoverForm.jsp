@@ -1,20 +1,11 @@
-<%@ page import="java.util.TimeZone" %>
-<%@ page import="java.util.Calendar" %>
-<%@ page import="java.text.SimpleDateFormat" %>
-<%@ page import="java.sql.Connection" %>
-<%@ page import="java.sql.PreparedStatement" %>
-<%@ page import="java.sql.DriverManager" %>
-<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
-    pageEncoding="ISO-8859-1"%>
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>
+<%@ page import="java.sql.*" %>
+<%@ page import="java.text.SimpleDateFormat, java.util.TimeZone, java.util.Calendar" %>
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="ISO-8859-1">
 <title>ShiftHandover</title>
-<!-- Include jQuery and jQuery UI CSS and JS -->
-<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
 <!-- Include Quill CSS -->
 <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
 <!-- Include Quill JavaScript -->
@@ -85,56 +76,32 @@
     }
 </style>
 <script>
-$(document).ready(function() {
-    var today = new Date().toISOString().slice(0, 10);
-    // Set the value of the currentDate input field
-    document.getElementById('currentDate').value = today;
-    var quill = new Quill('#editor-container', {
-        theme: 'snow',
-        modules: {
-            toolbar: [
-                [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-                ['bold', 'italic', 'underline', 'strike'],
-                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                ['link', 'image', 'video'],
-                ['clean']
-            ]
-        }
-    });
+    window.onload = function() {
+        var today = new Date();
+        var dd = String(today.getDate()).padStart(2, '0');
+        var mm = String(today.getMonth() + 1).padStart(2, '0');
+        var yyyy = today.getFullYear();
 
-    quill.on('text-change', function(delta, oldDelta, source) {
-        if (source === 'user') {
-            var text = quill.getText();
-            var cursorPosition = quill.getSelection().index;
-            var lastChar = text[cursorPosition - 1];
-            if (lastChar === '@') {
-                showAutocomplete();
-            }
-        }
-    });
+        today = yyyy + '-' + mm + '-' + dd;
+        document.getElementById('currentDate').value = today;
+    }
 
-    function showAutocomplete() {
-        $.ajax({
-            url: 'fetchUserEmails',
-            method: 'GET',
-            success: function(data) {
-                var atPos = quill.getSelection().index;
-                $(quill.root).autocomplete({
-                    source: data,
-                    position: { my: "left top", at: "left bottom", of: quill.root },
-                    select: function(event, ui) {
-                        var email = ui.item.value;
-                        var currentText = quill.getText(0, atPos);
-                        var lastAtPos = currentText.lastIndexOf('@');
-                        var textToInsert = email.substring(1);
-                        quill.deleteText(lastAtPos + 1, atPos - lastAtPos - 1);
-                        quill.insertText(lastAtPos + 1, textToInsert);
-                        return false;
-                    }
-                }).autocomplete("search", "");
+    var quill;
+
+    document.addEventListener('DOMContentLoaded', function() {
+        quill = new Quill('#editor-container', {
+            theme: 'snow',
+            modules: {
+                toolbar: [
+                    [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                    ['bold', 'italic', 'underline', 'strike'],
+                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                    ['link', 'image', 'video'],
+                    ['clean']
+                ]
             }
         });
-    }
+    });
 
     // Save Quill content to textarea on form submit
     function submitForm() {
@@ -142,17 +109,17 @@ $(document).ready(function() {
         editorContent.value = quill.root.innerHTML;
         document.querySelector('form').submit();
     }
-});
 </script>
 </head>
 <body>
 <div class="container">
-<form method="post">
+<center>
+<form method="post" onsubmit="submitForm(); return false;">
     <h1>Shift Handover</h1>
     <table>
         <tr>
             <td>Date:</td>
-            <td><input type="date" id="currentDate" name="date" class="input-box" required></td>
+            <td><input type="date" id="currentDate" name="date" class="input-box"></td>
         </tr>
         <tr>
             <td>Name:</td>
@@ -161,7 +128,7 @@ $(document).ready(function() {
         <tr>
             <td>Department:</td>
             <td>
-                <select name="DepType" class="input-box" required>
+                <select name="DepType" class="input-box">
                     <option value="security">Cyber Security</option>
                 </select>
             </td>
@@ -169,7 +136,7 @@ $(document).ready(function() {
         <tr>
             <td>Shift Type:</td>
             <td>
-                <select name="shiftType" class="input-box" required>
+                <select name="shiftType" class="input-box">
                     <option value="Morning">Morning Shift</option>
                     <option value="Evening">Evening Shift</option>
                     <option value="Night">Night Shift</option>
@@ -191,51 +158,48 @@ $(document).ready(function() {
         <input type="submit" class="btn" value="Submit">
     </center>
 </form>
-
 <%
-    if ("POST".equalsIgnoreCase(request.getMethod())) {
-        String date1 = request.getParameter("date");
-        String name1 = request.getParameter("name");
-        String dep1 = request.getParameter("DepType");
-        String shiftType = request.getParameter("shiftType");
-        String com1 = request.getParameter("com");
+    String date1 = request.getParameter("date");
+    String name1 = request.getParameter("name");
+    String dep1 = request.getParameter("DepType");
+    String shiftType = request.getParameter("shiftType");
+    String com1 = request.getParameter("com");
 
-        // Set the time zone to IST
-        TimeZone istTimeZone = TimeZone.getTimeZone("Asia/Kolkata");
-        Calendar calendar = Calendar.getInstance(istTimeZone);
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        sdf.setTimeZone(istTimeZone);
-        String timestamp = sdf.format(calendar.getTime());
+    // Set the time zone to IST
+    TimeZone istTimeZone = TimeZone.getTimeZone("Asia/Kolkata");
+    Calendar calendar = Calendar.getInstance(istTimeZone);
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    sdf.setTimeZone(istTimeZone);
+    String timestamp = sdf.format(calendar.getTime());
 
-        if (date1 != null && name1 != null && dep1 != null && shiftType != null && com1 != null && 
-            !date1.isEmpty() && !name1.isEmpty() && !dep1.isEmpty() && !shiftType.isEmpty() && !com1.isEmpty()) { 
-            String url = "jdbc:sqlserver://shodb.database.windows.net:1433;databaseName=shodb;user=bhuvana;password=Bhuvaneswari@15";
-            String query = "INSERT INTO dbo.snp (date, name, department, shiftType, comments, submissionTime) VALUES (?, ?, ?, ?, ?, ?)";
-            
-            try {
-                Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-                Connection connect = DriverManager.getConnection(url);
-                PreparedStatement ps = connect.prepareStatement(query);
-                ps.setString(1, date1);
-                ps.setString(2, name1);
-                ps.setString(3, dep1);
-                ps.setString(4, shiftType);
-                ps.setString(5, com1);
-                ps.setString(6, timestamp);
-                int rs1 = ps.executeUpdate();
-                if (rs1 > 0) {
-                    out.println("<center><p class='success-message'>Record Added..</p></center>");
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-                out.println("<center><p class='error-message'>An error occurred while processing your request.</p></center>");
+    if (date1 != null && name1 != null && dep1 != null && shiftType != null && com1 != null && 
+        !date1.isEmpty() && !name1.isEmpty() && !dep1.isEmpty() && !shiftType.isEmpty() && !com1.isEmpty()) { 
+        String url = "jdbc:sqlserver://shodb.database.windows.net:1433;databaseName=shodb;user=bhuvana;password=Bhuvaneswari@15";
+        String query = "INSERT INTO dbo.snp (date, name, department, shiftType, comments, submissionTime) VALUES (?, ?, ?, ?, ?, ?)";
+        
+        try {
+            Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+            Connection connect = DriverManager.getConnection(url);
+            PreparedStatement ps = connect.prepareStatement(query);
+            ps.setString(1, date1);
+            ps.setString(2, name1);
+            ps.setString(3, dep1);
+            ps.setString(4, shiftType);
+            ps.setString(5, com1);
+            ps.setString(6, timestamp);
+            int rs1 = ps.executeUpdate();
+            if (rs1 > 0) {
+                out.println("<center><p class='success-message'>Record Added..</p></center>");
             }
-        } else {
-            out.println("<center><p class='error-message'>Please Insert the Data...!!!</p></center>");
+        } catch (Exception e) {
+            e.printStackTrace();
+            out.println("<center><p class='error-message'>An error occurred while processing your request.</p></center>");
         }
+    } else {
+        out.println("<center><p class='error-message'>Please Insert the Data...!!!</p></center>");
     }
 %>
-
+</center>
 </div>
 </body>
 </html>
