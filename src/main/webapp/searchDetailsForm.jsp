@@ -156,7 +156,7 @@
         }
 
         try {
-            String url = "jdbc:sqlserver://shodb.database.windows.net:1433;databaseName=shodb;user=bhuvana;password=Bhuvaneswari@15";
+            String url = "jdbc:sqlserver://reactmvp.database.windows.net:1433;databaseName=bhuvanasho;user=reactadmiuser;password=An1ku2sh3@123";
             Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
             Connection connect = DriverManager.getConnection(url);
             PreparedStatement ps = connect.prepareStatement(query.toString());
