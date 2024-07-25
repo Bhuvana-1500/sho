@@ -156,7 +156,7 @@
         }
 
         try {
-            String url = "jdbc:sqlserver://reactmvp.database.windows.net:1433;databaseName=bhuvanasho;user=reactadmiuser;password=An1ku2sh3@123";
+            String url = "jdbc:sqlserver://reactmvp.database.windows.net:1433;databaseName=bhuvanasho;user=reactadmiuser;password=An1ku2sh3@123;encrypt=true;trustServerCertificate=false;hostNameInCertificate=*.database.windows.net;loginTimeout=30";
             Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
             Connection connect = DriverManager.getConnection(url);
             PreparedStatement ps = connect.prepareStatement(query.toString());
