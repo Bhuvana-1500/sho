@@ -79,7 +79,7 @@
     .comments {
         word-wrap: break-word; /* Break long words */
         max-width: 300px; /* Set maximum width */
-       /* max-height: 100px; /* Set maximum height */
+        /* max-height: 100px; /* Set maximum height */
         /*overflow-y: auto; /* Add vertical scroll if text exceeds height */
         /*overflow-x: auto; /* Hide horizontal scroll if any */
     }
@@ -156,7 +156,7 @@
         }
 
         try {
-            String url = "jdbc:sqlserver://bhuvanasho.database.windows.net:1433;databaseName=shodb1;user=bhuvana;password=Bhuvaneswari@15";
+            String url = "jdbc:sqlserver://bhuvanasho.database.windows.net:1433;databaseName=shodb;user=bhuvana;password=Bhuvaneswari@15";
             Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
             Connection connect = DriverManager.getConnection(url);
             PreparedStatement ps = connect.prepareStatement(query.toString());
@@ -191,14 +191,15 @@
                     String dp = rs.getString("department");
                     String st = rs.getString("shiftType");
                     String co = rs.getString("comments");
-                    Time ts = rs.getTime("submissionTime"); // Changed to Time to only show time
+                    Timestamp ts = rs.getTimestamp("submissionTime"); // Use Timestamp to retrieve date and time
+
                     out.println("<tr>");
                     out.println("<td><input type='hidden' name='id' value='" + id + "'>" + dt + "</td>");
                     out.println("<td>" + nm + "</td>");
                     out.println("<td>" + dp + "</td>");
                     out.println("<td>" + st + "</td>");
                     out.println("<td><div class='comments'>" + co + "</div></td>");
-                    out.println("<td>" + ts + "</td>");
+                    out.println("<td>" + (ts != null ? ts.toString() : "N/A") + "</td>"); // Display both date and time
                     out.println("</tr>");
                 }
                 out.println("</table></form></center>");
