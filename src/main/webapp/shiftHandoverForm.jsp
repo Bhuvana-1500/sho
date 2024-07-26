@@ -194,7 +194,7 @@
                 int rowsAffected = ps.executeUpdate();
 
                 if (rowsAffected > 0) {
-                    out.println("<p class='message success-message'>Data submitted successfully.</p>");
+                    out.println("<center><p class='message success-message'>Data submitted successfully.</p></center>");
                 } else {
                     out.println("<p class='message error-message'>Error: Data could not be saved.</p>");
                 }
@@ -206,7 +206,7 @@
                 e.printStackTrace(new PrintWriter(out)); // Wrap JspWriter with PrintWriter
             }
         } else {
-            out.println("<p class='message error-message'>Please Insert the Data...!!!</p>");
+            out.println("<center><p class='message error-message'>Please Insert the Data...!!!</p></center>");
         }
     }
 %>
