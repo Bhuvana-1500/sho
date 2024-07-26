@@ -177,7 +177,7 @@
 
         if (date1 != null && name1 != null && dep1 != null && shiftType != null && com1 != null && 
             !date1.isEmpty() && !name1.isEmpty() && !dep1.isEmpty() && !shiftType.isEmpty() && !com1.isEmpty()) { 
-            String url = "jdbc:sqlserver://bhuvanasho.database.windows.net:1433;databaseName=shodb;user=bhuvana;password=Bhuvaneswari@15";
+            String url = "jdbc:sqlserver://bhuvanasho.database.windows.net:1433;databaseName=shodb1;user=bhuvana;password=Bhuvaneswari@15";
             String query = "INSERT INTO dbo.snp (date, name, department, shiftType, comments, submissionTime) VALUES (?, ?, ?, ?, ?, ?)";
             
             try {
