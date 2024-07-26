@@ -177,7 +177,7 @@
 
         if (date1 != null && name1 != null && dep1 != null && shiftType != null && com1 != null && 
             !date1.isEmpty() && !name1.isEmpty() && !dep1.isEmpty() && !shiftType.isEmpty() && !com1.isEmpty()) { 
-            String url = "jdbc:sqlserver://reactmvp.database.windows.net:1433;databaseName=bhuvanasho;user=reactadmiuser;password=An1ku2sh3@123;encrypt=true;trustServerCertificate=false;hostNameInCertificate=*.database.windows.net;loginTimeout=30";
+            String url = "jdbc:sqlserver://bhuvanasho.database.windows.net:1433;databaseName=shodb1;user=bhuvana;password=Bhuvaneswari@15";
             String query = "INSERT INTO dbo.snp (date, name, department, shiftType, comments, submissionTime) VALUES (?, ?, ?, ?, ?, ?)";
             
             try {
